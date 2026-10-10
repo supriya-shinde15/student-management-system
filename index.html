@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EduPulse | Student Management System</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              200: '#c7d2fe',
+              300: '#a5b4fc',
+              400: '#818cf8',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              800: '#3730a3',
+              900: '#312e81',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- FontAwesome 6 CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="h-full bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200 antialiased">
+
+  <!-- Main App Layout: Sidebar + Main Content -->
+  <div class="flex h-screen overflow-hidden">
+
+    <!-- Sidebar Navigation -->
+    <aside id="sidebar" class="w-64 bg-white dark:bg-slate-800/95 border-r border-slate-200 dark:border-slate-700/80 flex flex-col shrink-0 z-30 transition-all duration-300">
+      <!-- App Brand Header -->
+      <div class="h-16 flex items-center px-6 border-b border-slate-200 dark:border-slate-700/80 gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-500 text-white flex items-center justify-center font-extrabold text-lg shadow-md shadow-brand-500/20">
+          <i class="fa-solid fa-graduation-cap"></i>
+        </div>
+        <div>
+          <span class="font-display font-bold text-lg text-slate-900 dark:text-white tracking-tight">EduPulse</span>
+          <span class="block text-[11px] font-medium text-slate-400 dark:text-slate-400 tracking-wider uppercase">SMS Portal</span>
+        </div>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav class="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto">
+        <a href="#dashboard" onclick="switchTab('dashboard')" id="nav-dashboard"
+          class="nav-item flex items-center gap-3.5 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all text-brand-600 bg-brand-50 dark:bg-brand-950/50 dark:text-brand-300 font-semibold shadow-sm">
+          <i class="fa-solid fa-chart-pie w-5 text-center text-base"></i>
+          <span>Dashboard</span>
+        </a>
+
+        <a href="#students" onclick="switchTab('students')" id="nav-students"
+          class="nav-item flex items-center gap-3.5 px-3.5 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-700/50 transition-all">
+          <i class="fa-solid fa-user-graduate w-5 text-center text-base"></i>
+          <span>Students</span>
+          <span id="sidebar-student-count" class="ml-auto text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">0</span>
+        </a>
+
+        <a href="#courses" onclick="switchTab('courses')" id="nav-courses"
+          class="nav-item flex items-center gap-3.5 px-3.5 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-700/50 transition-all">
+          <i class="fa-solid fa-book-open w-5 text-center text-base"></i>
+          <span>Courses & Enrollment</span>
+        </a>
+
+        <a href="#attendance" onclick="switchTab('attendance')" id="nav-attendance"
+          class="nav-item flex items-center gap-3.5 px-3.5 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-700/50 transition-all">
+          <i class="fa-solid fa-calendar-check w-5 text-center text-base"></i>
+          <span>Attendance</span>
+        </a>
+
+        <a href="#grades" onclick="switchTab('grades')" id="nav-grades"
+          class="nav-item flex items-center gap-3.5 px-3.5 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-700/50 transition-all">
+          <i class="fa-solid fa-award w-5 text-center text-base"></i>
+          <span>Grades & Reports</span>
+        </a>
+
+        <div class="pt-4 mt-4 border-t border-slate-200 dark:border-slate-700/80">
+          <p class="px-3 pb-2 text-[11px] font-semibold tracking-wider text-slate-400 uppercase">System</p>
+          <a href="#settings" onclick="switchTab('settings')" id="nav-settings"
+            class="nav-item flex items-center gap-3.5 px-3.5 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-700/50 transition-all">
+            <i class="fa-solid fa-database w-5 text-center text-base"></i>
+            <span>Backup & Data</span>
+          </a>
+        </div>
+      </nav>
+
+      <!-- Sidebar Footer User / Theme Info -->
+      <div class="p-4 border-t border-slate-200 dark:border-slate-700/80 bg-slate-50/50 dark:bg-slate-800/40">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-full bg-brand-100 text-brand-700 dark:bg-brand-900 dark:text-brand-300 flex items-center justify-center font-bold text-xs">
+              AD
+            </div>
+            <div>
+              <div class="text-xs font-semibold text-slate-800 dark:text-slate-200">Admin Portal</div>
+              <div class="text-[10px] text-emerald-500 font-medium flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> LocalStorage Mode
+              </div>
+            </div>
+          </div>
+          <!-- Theme Toggle -->
+          <button id="theme-toggle" onclick="toggleTheme()" class="p-2 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-700 transition" title="Toggle Dark/Light Mode">
+            <i class="fa-solid fa-moon dark:hidden"></i>
+            <i class="fa-solid fa-sun hidden dark:inline"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <!-- Top Header Bar -->
+      <header class="h-16 bg-white dark:bg-slate-800/90 border-b border-slate-200 dark:border-slate-700/80 flex items-center justify-between px-6 z-10 shrink-0">
+        <div class="flex items-center gap-3">
+          <!-- Mobile Menu Toggle Button -->
+          <button id="mobile-menu-btn" onclick="toggleMobileSidebar()" class="lg:hidden p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+            <i class="fa-solid fa-bars text-lg"></i>
+          </button>
+          <h1 id="page-title" class="text-xl font-display font-bold text-slate-900 dark:text-white">Dashboard Overview</h1>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <!-- Quick Action: Quick Add Student -->
+          <button onclick="openStudentModal()" class="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-lg shadow-sm shadow-brand-500/30 transition">
+            <i class="fa-solid fa-user-plus"></i>
+            <span>Add Student</span>
+          </button>
+          <!-- Quick Action: Record Grade -->
+          <button onclick="openAddGradeModal()" class="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-lg transition">
+            <i class="fa-solid fa-pen-to-square"></i>
+            <span>Enter Grade</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Scrollable Main Canvas -->
+      <main class="flex-1 overflow-y-auto p-6 md:p-8 bg-slate-50 dark:bg-slate-900">
+
+        <!-- ========================================== -->
+        <!-- TAB 1: DASHBOARD -->
+        <!-- ========================================== -->
+        <section id="tab-dashboard" class="tab-content space-y-6 animate-fade-in">
+          <!-- KPI Cards Row -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <!-- Total Students -->
+            <div class="bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-200 dark:border-slate-700/70 shadow-xs flex items-center justify-between">
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Enrolled</p>
+                <h3 id="stat-total-students" class="text-2xl font-display font-bold text-slate-900 dark:text-white mt-1">0</h3>
+                <p id="stat-active-students" class="text-xs text-emerald-600 dark:text-emerald-400 font-medium mt-1">0 Active</p>
+              </div>
+              <div class="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xl shadow-xs">
+                <i class="fa-solid fa-users"></i>
+              </div>
+            </div>
+
+            <!-- Active Courses -->
+            <div class="bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-200 dark:border-slate-700/70 shadow-xs flex items-center justify-between">
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Courses</p>
+                <h3 id="stat-total-courses" class="text-2xl font-display font-bold text-slate-900 dark:text-white mt-1">0</h3>
+                <p id="stat-total-credits" class="text-xs text-brand-600 dark:text-brand-400 font-medium mt-1">Credits available</p>
+              </div>
+              <div class="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xl shadow-xs">
+                <i class="fa-solid fa-book-bookmark"></i>
+              </div>
+            </div>
+
+            <!-- Average Attendance -->
+            <div class="bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-200 dark:border-slate-700/70 shadow-xs flex items-center justify-between">
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Avg Attendance</p>
+                <h3 id="stat-avg-attendance" class="text-2xl font-display font-bold text-slate-900 dark:text-white mt-1">0%</h3>
+                <p class="text-xs text-slate-500 font-medium mt-1">Past 30 days</p>
+              </div>
+              <div class="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl shadow-xs">
+                <i class="fa-solid fa-circle-check"></i>
+              </div>
+            </div>
+
+            <!-- Average GPA -->
+            <div class="bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-200 dark:border-slate-700/70 shadow-xs flex items-center justify-between">
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Institutional GPA</p>
+                <h3 id="stat-avg-gpa" class="text-2xl font-display font-bold text-slate-900 dark:text-white mt-1">0.00</h3>
+                <p class="text-xs text-amber-600 dark:text-amber-400 font-medium mt-1">Scale of 4.0</p>
+              </div>
+              <div class="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xl shadow-xs">
+                <i class="fa-solid fa-star"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Charts Row -->
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Department Distribution (Bar chart) -->
+            <div class="lg:col-span-2 bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-200 dark:border-slate-700/70 shadow-xs">
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <h4 class="font-display font-semibold text-base text-slate-900 dark:text-white">Department Enrollment</h4>
+                  <p class="text-xs text-slate-400">Active student count per faculty</p>
+                </div>
+                <span class="text-xs font-medium text-slate-400"><i class="fa-solid fa-chart-column mr-1"></i> Live</span>
+              </div>
+              <div class="h-64">
+                <canvas id="chart-departments"></canvas>
+              </div>
+            </div>
+
+            <!-- Attendance Distribution (Doughnut chart) -->
+            <div class="bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-200 dark:border-slate-700/70 shadow-xs">
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <h4 class="font-display font-semibold text-base text-slate-900 dark:text-white">Attendance Ratio</h4>
+                  <p class="text-xs text-slate-400">Present vs Absent vs Late</p>
+                </div>
+                <span class="text-xs font-medium text-slate-400"><i class="fa-solid fa-chart-pie mr-1"></i> Logs</span>
+              </div>
+              <div class="h-64 flex items-center justify-center">
+                <canvas id="chart-attendance"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Navigation Cards & Top Performers -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Top Academic Performers -->
+            <div class="bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-200 dark:border-slate-700/70 shadow-xs">
+              <div class="flex items-center justify-between mb-4">
+                <h4 class="font-display font-semibold text-base text-slate-900 dark:text-white">Top Performing Students</h4>
+                <button onclick="switchTab('students')" class="text-xs text-brand-600 dark:text-brand-400 font-semibold hover:underline">View All</button>
+              </div>
+              <div id="dashboard-top-performers" class="divide-y divide-slate-100 dark:divide-slate-700/50">
+                <!-- Dynamically populated -->
+              </div>
+            </div>
+
+            <!-- Recent Courses Status -->
+            <div class="bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-200 dark:border-slate-700/70 shadow-xs">
+              <div class="flex items-center justify-between mb-4">
+                <h4 class="font-display font-semibold text-base text-slate-900 dark:text-white">Active Courses Overview</h4>
+                <button onclick="switchTab('courses')" class="text-xs text-brand-600 dark:text-brand-400 font-semibold hover:underline">Manage</button>
+              </div>
+              <div id="dashboard-courses-list" class="space-y-3">
+                <!-- Dynamically populated -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB 2: STUDENTS -->
+        <!-- ========================================== -->
+        <section id="tab-students" class="tab-content space-y-6 hidden animate-fade-in">
+          <!-- Control Bar: Search, Filters, Add Button -->
+          <div class="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700/70 shadow-xs space-y-3">
+            <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+              <!-- Search Bar -->
+              <div class="relative flex-1">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400">
+                  <i class="fa-solid fa-magnifying-glass text-sm"></i>
+                </span>
+                <input type="text" id="student-search-input" oninput="renderStudentsTable()"
+                  placeholder="Search students by name, ID, or email..."
+                  class="w-full pl-10 pr-4 py-2 text-sm rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500/50 text-slate-900 dark:text-white">
+              </div>
+
+              <!-- Filter Controls -->
+              <div class="flex flex-wrap items-center gap-2.5">
+                <!-- Department Filter -->
+                <select id="student-filter-dept" onchange="renderStudentsTable()"
+                  class="py-2 px-3 text-xs rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500/50 font-medium">
+                  <option value="">All Departments</option>
+                  <option value="Computer Science">Computer Science</option>
+                  <option value="Electrical Engineering">Electrical Engineering</option>
+                  <option value="Business Administration">Business Administration</option>
+                  <option value="Information Technology">Information Technology</option>
+                </select>
+
+                <!-- Status Filter -->
+                <select id="student-filter-status" onchange="renderStudentsTable()"
+                  class="py-2 px-3 text-xs rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500/50 font-medium">
+                  <option value="">All Statuses</option>
+                  <option value="Active">Active</option>
+                  <option value="Suspended">Suspended</option>
+                  <option value="Graduated">Graduated</option>
+                </select>
+
+                <!-- Export CSV -->
+                <button onclick="exportStudentsCSV()" class="px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-lg transition" title="Export to CSV">
+                  <i class="fa-solid fa-file-csv mr-1.5"></i> Export
+                </button>
+
+                <!-- Add Student Button -->
+                <button onclick="openStudentModal()" class="px-4 py-2 text-xs font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-lg shadow-sm shadow-brand-500/30 transition">
+                  <i class="fa-solid fa-user-plus mr-1.5"></i> Add Student
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Students Data Table -->
+          <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700/70 shadow-xs overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm table-hover">
+                <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700">
+                  <tr>
+                    <th scope="col" class="py-3.5 px-4 font-semibold">Student ID & Name</th>
+                    <th scope="col" class="py-3.5 px-4 font-semibold">Department & Year</th>
+                    <th scope="col" class="py-3.5 px-4 font-semibold">Contact</th>
+                    <th scope="col" class="py-3.5 px-4 font-semibold">Courses</th>
+                    <th scope="col" class="py-3.5 px-4 font-semibold">Attendance</th>
+                    <th scope="col" class="py-3.5 px-4 font-semibold">GPA</th>
+                    <th scope="col" class="py-3.5 px-4 font-semibold">Status</th>
+                    <th scope="col" class="py-3.5 px-4 font-semibold text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="students-table-body" class="divide-y divide-slate-100 dark:divide-slate-700/60 font-normal">
+                  <!-- Populated by JavaScript -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Table Footer -->
+            <div class="py-3.5 px-6 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between text-xs text-slate-500">
+              <span id="students-count-indicator">Showing 0 students</span>
+              <span class="text-slate-400">Total enrolled across all academic departments</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB 3: COURSES & ENROLLMENT -->
+        <!-- ========================================== -->
+        <section id="tab-courses" class="tab-content space-y-6 hidden animate-fade-in">
+          <!-- Control Bar -->
+          <div class="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700/70 shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            <div>
+              <h3 class="font-display font-bold text-slate-900 dark:text-white text-base">Course Catalog & Class Rosters</h3>
+              <p class="text-xs text-slate-400">Manage curriculum, credits, and student enrollment</p>
+            </div>
+            <button onclick="openCourseModal()" class="px-4 py-2 text-xs font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-lg shadow-sm shadow-brand-500/30 transition flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-plus"></i> Add Course
+            </button>
+          </div>
+
+          <!-- Courses Grid Cards -->
+          <div id="courses-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <!-- Dynamically populated -->
+          </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB 4: ATTENDANCE TRACKING -->
+        <!-- ========================================== -->
+        <section id="tab-attendance" class="tab-content space-y-6 hidden animate-fade-in">
+          <!-- Session Setup Bar -->
+          <div class="bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-200 dark:border-slate-700/70 shadow-xs">
+            <h3 class="font-display font-bold text-slate-900 dark:text-white text-base mb-3">Take Attendance Session</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">Select Course</label>
+                <select id="attendance-select-course" onchange="loadAttendanceRoster()"
+                  class="w-full py-2 px-3 text-sm rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500/50">
+                  <!-- Populated dynamically -->
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">Session Date</label>
+                <input type="date" id="attendance-select-date" onchange="loadAttendanceRoster()"
+                  class="w-full py-2 px-3 text-sm rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500/50">
+              </div>
+
+              <div class="flex items-center gap-2">
+                <button onclick="markAllAttendance('Present')" class="flex-1 py-2 px-3 text-xs font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 rounded-lg transition border border-emerald-200 dark:border-emerald-800">
+                  <i class="fa-solid fa-check-double mr-1"></i> All Present
+                </button>
+                <button onclick="markAllAttendance('Absent')" class="flex-1 py-2 px-3 text-xs font-semibold text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 rounded-lg transition border border-rose-200 dark:border-rose-800">
+                  <i class="fa-solid fa-xmark mr-1"></i> All Absent
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Attendance Roster Table -->
+          <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700/70 shadow-xs overflow-hidden">
+            <div class="p-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+              <div>
+                <h4 id="attendance-roster-header" class="font-display font-semibold text-slate-900 dark:text-white text-sm">Class Roster</h4>
+                <p id="attendance-roster-sub" class="text-xs text-slate-400">Select attendance status for each enrolled student</p>
+              </div>
+              <button onclick="saveAttendanceSession()" class="px-4 py-2 text-xs font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-lg shadow-sm shadow-brand-500/30 transition flex items-center gap-1.5">
+                <i class="fa-solid fa-floppy-disk"></i> Save Attendance
+              </button>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm table-hover">
+                <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700">
+                  <tr>
+                    <th scope="col" class="py-3.5 px-4 font-semibold">Student ID & Name</th>
+                    <th scope="col" class="py-3.5 px-4 font-semibold">Historical Rate</th>
+                    <th scope="col" class="py-3.5 px-4 font-semibold text-center">Status (Select One)</th>
+                  </tr>
+                </thead>
+                <tbody id="attendance-roster-body" class="divide-y divide-slate-100 dark:divide-slate-700/60">
+                  <!-- Populated dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB 5: GRADES & REPORT CARDS -->
+        <!-- ========================================== -->
+        <section id="tab-grades" class="tab-content space-y-6 hidden animate-fade-in">
+          <!-- Sub Navigation Tabs -->
+          <div class="flex items-center gap-2 border-b border-slate-200 dark:border-slate-700 pb-2">
+            <button id="btn-subtab-records" onclick="switchGradesSubTab('records')" class="px-4 py-2 text-sm font-semibold rounded-lg bg-brand-50 text-brand-700 dark:bg-brand-950 dark:text-brand-300">
+              <i class="fa-solid fa-list-check mr-1.5"></i> Assessment Grades
+            </button>
+            <button id="btn-subtab-report" onclick="switchGradesSubTab('report')" class="px-4 py-2 text-sm font-semibold rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+              <i class="fa-solid fa-file-invoice mr-1.5"></i> Student Report Card / Transcript
+            </button>
+          </div>
+
+          <!-- Sub Tab 1: Grade Entry & Table -->
+          <div id="subtab-grades-records" class="space-y-6">
+            <div class="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700/70 shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+              <div>
+                <h4 class="font-display font-semibold text-slate-900 dark:text-white text-base">Recorded Assessments</h4>
+                <p class="text-xs text-slate-400">All tests, assignments, quizzes, and exams</p>
+              </div>
+              <button onclick="openAddGradeModal()" class="px-4 py-2 text-xs font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-lg shadow-sm shadow-brand-500/30 transition flex items-center justify-center gap-1.5">
+                <i class="fa-solid fa-plus"></i> Add New Grade Record
+              </button>
+            </div>
+
+            <!-- Grades Table -->
+            <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700/70 shadow-xs overflow-hidden">
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm table-hover">
+                  <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700">
+                    <tr>
+                      <th scope="col" class="py-3.5 px-4 font-semibold">Student</th>
+                      <th scope="col" class="py-3.5 px-4 font-semibold">Course</th>
+                      <th scope="col" class="py-3.5 px-4 font-semibold">Assessment</th>
+                      <th scope="col" class="py-3.5 px-4 font-semibold">Score / Max</th>
+                      <th scope="col" class="py-3.5 px-4 font-semibold">Percentage</th>
+                      <th scope="col" class="py-3.5 px-4 font-semibold">Letter</th>
+                      <th scope="col" class="py-3.5 px-4 font-semibold">Date</th>
+                      <th scope="col" class="py-3.5 px-4 font-semibold text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="grades-table-body" class="divide-y divide-slate-100 dark:divide-slate-700/60">
+                    <!-- Populated dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sub Tab 2: Printable Report Card View -->
+          <div id="subtab-grades-report" class="space-y-6 hidden">
+            <!-- Student Selector for Report Card -->
+            <div class="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700/70 shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 no-print">
+              <div class="flex items-center gap-3">
+                <label class="text-xs font-semibold text-slate-600 dark:text-slate-300">Generate For:</label>
+                <select id="report-select-student" onchange="generateReportCard()"
+                  class="py-2 px-3 text-sm rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500/50">
+                  <!-- Populated dynamically -->
+                </select>
+              </div>
+              <button onclick="window.print()" class="px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-lg transition flex items-center justify-center gap-2">
+                <i class="fa-solid fa-print"></i> Print Transcript
+              </button>
+            </div>
+
+            <!-- Report Card Document (Clean printable paper card) -->
+            <div id="report-card-paper" class="bg-white dark:bg-slate-800 rounded-xl p-8 border border-slate-200 dark:border-slate-700/70 shadow-sm max-w-4xl mx-auto print-area">
+              <!-- Dynamically populated transcript -->
+            </div>
+          </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB 6: BACKUP & DATA SETTINGS -->
+        <!-- ========================================== -->
+        <section id="tab-settings" class="tab-content space-y-6 hidden animate-fade-in">
+          <div class="max-w-3xl mx-auto space-y-6">
+            <!-- Data Management Card -->
+            <div class="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700/70 shadow-xs">
+              <h3 class="font-display font-bold text-lg text-slate-900 dark:text-white mb-2">LocalStorage Data Management</h3>
+              <p class="text-sm text-slate-500 dark:text-slate-400 mb-6">
+                All records (students, courses, enrollments, attendance, and grades) are stored safely inside your browser's LocalStorage. You can export a JSON backup, restore from a file, or reset to demo data anytime.
+              </p>
+
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Export Backup -->
+                <button onclick="downloadBackupJSON()" class="p-4 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-brand-500 hover:bg-brand-50/40 dark:hover:bg-brand-950/20 text-left transition group">
+                  <div class="w-10 h-10 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-lg mb-3 group-hover:scale-110 transition">
+                    <i class="fa-solid fa-cloud-arrow-down"></i>
+                  </div>
+                  <h4 class="font-semibold text-sm text-slate-900 dark:text-white">Download JSON</h4>
+                  <p class="text-xs text-slate-400 mt-1">Export full snapshot of all records</p>
+                </button>
+
+                <!-- Import Backup -->
+                <label class="p-4 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-brand-500 hover:bg-brand-50/40 dark:hover:bg-brand-950/20 text-left transition group cursor-pointer">
+                  <div class="w-10 h-10 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-lg mb-3 group-hover:scale-110 transition">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                  </div>
+                  <h4 class="font-semibold text-sm text-slate-900 dark:text-white">Restore JSON</h4>
+                  <p class="text-xs text-slate-400 mt-1">Upload a previous JSON backup</p>
+                  <input type="file" id="import-json-input" accept=".json" onchange="handleImportJSON(event)" class="hidden">
+                </label>
+
+                <!-- Reset to Defaults -->
+                <button onclick="confirmResetDefaults()" class="p-4 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-rose-500 hover:bg-rose-50/40 dark:hover:bg-rose-950/20 text-left transition group">
+                  <div class="w-10 h-10 rounded-lg bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center text-lg mb-3 group-hover:scale-110 transition">
+                    <i class="fa-solid fa-arrow-rotate-left"></i>
+                  </div>
+                  <h4 class="font-semibold text-sm text-slate-900 dark:text-white">Reset Demo Data</h4>
+                  <p class="text-xs text-slate-400 mt-1">Revert to standard sample dataset</p>
+                </button>
+              </div>
+            </div>
+
+            <!-- About System Card -->
+            <div class="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700/70 shadow-xs">
+              <h4 class="font-display font-semibold text-base text-slate-900 dark:text-white mb-2">About EduPulse SMS</h4>
+              <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">
+                Designed as a responsive, zero-dependency, client-side Student Management System built using standard HTML5, Tailwind CSS, vanilla JavaScript, and Chart.js.
+              </p>
+              <div class="flex flex-wrap gap-2 text-xs">
+                <span class="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-700 font-medium text-slate-600 dark:text-slate-300">HTML5 / ES6+</span>
+                <span class="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-700 font-medium text-slate-600 dark:text-slate-300">Tailwind CSS 3.x</span>
+                <span class="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-700 font-medium text-slate-600 dark:text-slate-300">Chart.js Analytics</span>
+                <span class="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-700 font-medium text-slate-600 dark:text-slate-300">FontAwesome Icons</span>
+                <span class="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-700 font-medium text-slate-600 dark:text-slate-300">LocalStorage CRUD</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: ADD / EDIT STUDENT -->
+  <!-- ========================================== -->
+  <div id="modal-student" class="fixed inset-0 z-50 hidden overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
+      <div class="fixed inset-0 bg-slate-900/60 modal-backdrop transition-opacity" onclick="closeStudentModal()"></div>
+      <div class="relative inline-block w-full max-w-2xl p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-700">
+          <h3 id="modal-student-title" class="text-lg font-display font-bold text-slate-900 dark:text-white">Add New Student</h3>
+          <button onclick="closeStudentModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-lg">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <form id="form-student" onsubmit="handleSaveStudent(event)" class="mt-4 space-y-4">
+          <input type="hidden" id="student-form-id">
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">First Name *</label>
+              <input type="text" id="student-first-name" required
+                class="w-full px-3 py-2 text-sm rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500/50 outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Last Name *</label>
+              <input type="text" id="student-last-name" required
+                class="w-full px-3 py-2 text-sm rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500/50 outline-none">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Email Address *</label>
+              <input type="email" id="student-email" required
+                class="w-full px-3 py-2 text-sm rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500/50 outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Phone Number *</label>
+              <input type="tel" id="student-phone" required
+                class="w-full px-3 py-2 text-sm rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500/50 outline-none">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Department / Major *</label>
+              <select id="student-department" required
+                class="w-full px-3 py-2 text-sm rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500/50 outline-none">
+                <option value="Computer Science">Computer Science</option>
+                <option value="Electrical Engineering">Electrical Engineering</option>
+                <option value="Business Administration">Business Administration</option>
+                <option value="Information Technology">Information Technology</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Academic Year</label>
+              <select id="student-year"
+                class="w-full px-3 py-2 text-sm rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500/50 outline-none">
+                <option value="1st Year">1st Year</option>
+                <option value="2nd Year">2nd Year</option>
+                <option value="3rd Year">3rd Year</option>
+                <option value="4th Year">4th Year</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Status</label>
+              <select id="student-status"
+                class="w-full px-3 py-2 text-sm rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500/50 outline-none">
+                <option value="Active">Active</option>
+                <option value="Suspended">Suspended</option>
+                <option value="Graduated">Graduated</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Date of Birth</label>
+              <input type="date" id="student-dob"
+                class="w-full px-3 py-2 text-sm rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500/50 outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Gender</label>
+              <select id="student-gender"
+                class="w-full px-3 py-2 text-sm rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500/50 outline-none">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Non-Binary">Non-Binary</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Guardian Name</label>
+              <input type="text" id="student-guardian-name" placeholder="e.g. Robert Smith"
+                class="w-full px-3 py-2 text-sm rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500/50 outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Guardian Contact Phone</label>
+              <input type="tel" id="student-guardian-phone" placeholder="e.g. +1 (555) 000-0000"
+                class="w-full px-3 py-2 text-sm rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500/50 outline-none">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Residential Address</label>
+            <textarea id="student-address" rows="2" placeholder="e.g. 124 Main Street, Cityville"
+              class="w-full px-3 py-2 text-sm rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500/50 outline-none"></textarea>
+          </div>
+
+          <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-200 dark:border-slate-700">
+            <button type="button" onclick="closeStudentModal()" class="px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition">Cancel</button>
+            <button type="submit" class="px-5 py-2 text-xs font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-lg shadow-sm shadow-brand-500/30 transition">Save Student</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: VIEW STUDENT DETAILS -->
+  <!-- ========================================== -->
+  <div id="modal-view-student" class="fixed inset-0 z-50 hidden overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
+      <div class="fixed inset-0 bg-slate-900/60 modal-backdrop transition-opacity" onclick="closeViewStudentModal()"></div>
+      <div class="relative inline-block w-full max-w-3xl p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-700">
+          <h3 class="text-lg font-display font-bold text-slate-900 dark:text-white">Student Detailed Profile</h3>
+          <button onclick="closeViewStudentModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-lg">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <div id="student-detail-content" class="mt-4">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: ADD / EDIT COURSE -->
+  <!-- ========================================== -->
+  <div id="modal-course" class="fixed inset-0 z-50 hidden overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
+      <div class="fixed inset-0 bg-slate-900/60 modal-backdrop transition-opacity" onclick="closeCourseModal()"></div>
+      <div class="relative inline-block w-full max-w-lg p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-700">
+          <h3 id="modal-course-title" class="text-lg font-display font-bold text-slate-900 dark:text-white">Add New Course</h3>
+          <button onclick="closeCourseModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-lg">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <form id="form-course" onsubmit="handleSaveCourse(event)" class="mt-4 space-y-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Course Code *</label>
+              <input type="text" id="course-code" placeholder="e.g. CS301" required
+                class="w-full px-3 py-2 text-sm rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500/50 outline-none uppercase">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Credits *</label>
+              <input type="number" id="course-credits" min="1" max="6" value="3" required
+                class="w-full px-3 py-2 text-sm rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500/50 outline-none">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Course Name *</label>
+            <input type="text" id="course-name" placeholder="e.g. Artificial Intelligence" required
+              class="w-full px-3 py-2 text-sm rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500/50 outline-none">
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Department</label>
+              <select id="course-department"
+                class="w-full px-3 py-2 text-sm rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500/50 outline-none">
+                <option value="Computer Science">Computer Science</option>
+                <option value="Electrical Engineering">Electrical Engineering</option>
+                <option value="Business Administration">Business Administration</option>
+                <option value="Information Technology">Information Technology</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Max Capacity</label>
+              <input type="number" id="course-capacity" min="5" max="200" value="40"
+                class="w-full px-3 py-2 text-sm rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500/50 outline-none">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Instructor</label>
+              <input type="text" id="course-instructor" placeholder="e.g. Dr. Alan Turing"
+                class="w-full px-3 py-2 text-sm rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500/50 outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Semester</label>
+              <input type="text" id="course-semester" value="Fall 2026"
+                class="w-full px-3 py-2 text-sm rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500/50 outline-none">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Description</label>
+            <textarea id="course-description" rows="2" placeholder="Course overview and syllabus outline..."
+              class="w-full px-3 py-2 text-sm rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500/50 outline-none"></textarea>
+          </div>
+
+          <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-200 dark:border-slate-700">
+            <button type="button" onclick="closeCourseModal()" class="px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition">Cancel</button>
+            <button type="submit" class="px-5 py-2 text-xs font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-lg shadow-sm shadow-brand-500/30 transition">Save Course</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: MANAGE COURSE ENROLLMENT -->
+  <!-- ========================================== -->
+  <div id="modal-enrollment" class="fixed inset-0 z-50 hidden overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
+      <div class="fixed inset-0 bg-slate-900/60 modal-backdrop transition-opacity" onclick="closeEnrollmentModal()"></div>
+      <div class="relative inline-block w-full max-w-xl p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-700">
+          <div>
+            <h3 id="enrollment-modal-title" class="text-lg font-display font-bold text-slate-900 dark:text-white">Class Enrollment</h3>
+            <p id="enrollment-modal-subtitle" class="text-xs text-slate-400">Toggle student enrollment for this course</p>
+          </div>
+          <button onclick="closeEnrollmentModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-lg">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <div class="mt-4">
+          <input type="text" id="enrollment-search-student" oninput="filterEnrollmentStudentList()"
+            placeholder="Filter students to enroll..."
+            class="w-full px-3 py-2 mb-3 text-xs rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500/50 outline-none">
+          
+          <div id="enrollment-students-list" class="max-h-72 overflow-y-auto space-y-2 pr-1">
+            <!-- Checkbox list of students populated by JS -->
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between pt-4 mt-4 border-t border-slate-200 dark:border-slate-700 text-xs text-slate-500">
+          <span id="enrollment-count-indicator">0 students enrolled</span>
+          <button onclick="closeEnrollmentModal()" class="px-4 py-2 font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-lg shadow-sm transition">Done</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: ADD GRADE -->
+  <!-- ========================================== -->
+  <div id="modal-add-grade" class="fixed inset-0 z-50 hidden overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
+      <div class="fixed inset-0 bg-slate-900/60 modal-backdrop transition-opacity" onclick="closeAddGradeModal()"></div>
+      <div class="relative inline-block w-full max-w-md p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-700">
+          <h3 class="text-lg font-display font-bold text-slate-900 dark:text-white">Record Assessment Grade</h3>
+          <button onclick="closeAddGradeModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-lg">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <form id="form-grade" onsubmit="handleSaveGrade(event)" class="mt-4 space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Student *</label>
+            <select id="grade-student-select" required onchange="populateStudentCourseSelect()"
+              class="w-full px-3 py-2 text-sm rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500/50 outline-none">
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Course *</label>
+            <select id="grade-course-select" required
+              class="w-full px-3 py-2 text-sm rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500/50 outline-none">
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Assessment Title *</label>
+            <input type="text" id="grade-assessment-title" placeholder="e.g. Midterm Exam, Assignment 2" required
+              class="w-full px-3 py-2 text-sm rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500/50 outline-none">
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Score Obtained *</label>
+              <input type="number" id="grade-score" min="0" max="1000" step="0.5" placeholder="85" required
+                class="w-full px-3 py-2 text-sm rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500/50 outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Max Score *</label>
+              <input type="number" id="grade-max-score" min="1" max="1000" step="0.5" value="100" required
+                class="w-full px-3 py-2 text-sm rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500/50 outline-none">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Date</label>
+            <input type="date" id="grade-date" required
+              class="w-full px-3 py-2 text-sm rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500/50 outline-none">
+          </div>
+
+          <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-200 dark:border-slate-700">
+            <button type="button" onclick="closeAddGradeModal()" class="px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition">Cancel</button>
+            <button type="submit" class="px-5 py-2 text-xs font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-lg shadow-sm shadow-brand-500/30 transition">Record Grade</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notifications Container -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 max-w-sm pointer-events-none"></div>
+
+  <!-- Application Logic Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
